@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Craig Hesling
+# Oct 7, 2018
 
 import os
 import argparse
@@ -49,9 +51,6 @@ class ConnectMe:
                     data = f.read(self.local_block_size)
                     if not data:
                         break
-                    # print(type(path))
-                    # print(type(prefix))
-                    # print(type(prefix+path))
                     yield connectme_pb2.FileChunk(path=prefix+path, counter=counter, data=data)
                     counter += 1
 
@@ -87,13 +86,6 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
                 total_files += 1
             file.write(chunk.data)
             total_bytes += len(chunk.data)
-
-            # try:
-            #     pass
-            # except FileNotFoundError:
-            #     print('Failed to find {}'.format(file.path))
-            #     details = "File \"{}\" does not exist".format(file.path)
-            #     context.abort(grpc.StatusCode.NOT_FOUND, details)
         file.close()
         return connectme_pb2.PutReturn(total_files=total_files, total_bytes=total_bytes)
 
@@ -158,22 +150,16 @@ class ConnectMeClient(ConnectMe):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("address", help="the server address to bind or connect to",
-                        nargs="?", default="localhost:50051")
-    # parser.add_argument("-v", "--verbosity", type=int, help="increase output verbosity")
-    parser.add_argument(
-        "-s", "--server", help="indicate this is the server", action="store_true")
+    parser.add_argument("address", help="the server address to bind or connect to", nargs="?", default="localhost:50051")
+    parser.add_argument("-s", "--server", help="indicate this is the server", action="store_true")
     subparsers = parser.add_subparsers(dest='command')
-    parser_checksum = subparsers.add_parser(
-        'checksum', help='Request the checksum of remote files')
-    parser_checksum.add_argument(
-        'file', nargs="+", type=str, help='A file path we wish to checksum')
-    parser_put = subparsers.add_parser(
-        'put', help='Transfer local files to remote server')
-    parser_put.add_argument('source_file', nargs="+",
-                            type=str, help='The path of files to send')
-    parser_put.add_argument('remote_destination', type=str,
-                            help='The remote path where we will deposit the files')
+
+    parser_checksum = subparsers.add_parser('checksum', help='Request the checksum of remote files')
+    parser_checksum.add_argument('file', nargs="+", type=str, help='A file path we wish to checksum')
+
+    parser_put = subparsers.add_parser('put', help='Transfer local files to remote server')
+    parser_put.add_argument('local_file', nargs="+",type=str, help='The path of files to send')
+    parser_put.add_argument('remote_destination', type=str, help='The remote path where we will deposit the files')
     args = parser.parse_args()
 
     if args.server:
@@ -220,14 +206,11 @@ if __name__ == "__main__":
                 for (f, sum) in zip(args.file, checksum):
                     print(sum, f)
         elif args.command == "put":
-            print('source_file = ', args.source_file)
+            print('local_file = ', args.local_file)
             print('remote_destination = ', args.remote_destination)
             try:
-                checksum = client.FilePut(
-                    args.source_file, args.remote_destination)
+                checksum = client.FilePut(args.local_file, args.remote_destination)
             except FileNotFoundError as e:
                 print('File not found: ', e)
-            # else:
-            #     # Output the sum and file in standard checksum format
-            #     for (f, sum) in zip(args.file, checksum):
-            #         print(sum, f)
+            except FileNotFoundError as e:
+                print('File not found: ', e)

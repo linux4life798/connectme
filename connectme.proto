@@ -1,4 +1,4 @@
-// Craig Hesling <craig@hesling.com>
+// Craig Hesling
 // Oct 7, 2018
 
 syntax = "proto3";
@@ -23,9 +23,6 @@ message FileChunk {
 message PutReturn {
   uint64 total_files = 1;
   uint64 total_bytes = 2;
-}
-
-message Empty {
 }
 
 service FileManager {
