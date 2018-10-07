@@ -1,0 +1,35 @@
+// Craig Hesling <craig@hesling.com>
+// Oct 7, 2018
+
+syntax = "proto3";
+
+package connectme;
+
+message FilePath {
+  string path = 1;
+}
+
+message FileChecksum {
+  string path = 1;
+  string sum  = 2;
+}
+
+message FileChunk {
+  string path    = 1;
+  uint64 counter = 2;
+  bytes  data    = 3;
+}
+
+message PutReturn {
+  uint64 total_files = 1;
+  uint64 total_bytes = 2;
+}
+
+message Empty {
+}
+
+service FileManager {
+  rpc Checksum(stream FilePath) returns (stream FileChecksum) {}
+  rpc Put(stream FileChunk) returns (PutReturn) {}
+  // rpc Get(FilePath) returns (stream FileChunk){}
+}
