@@ -9,6 +9,7 @@ OU      = .
 CN      = .
 
 .PHONY: all ca server client clean
+.PHONY: inspect-pem inspect-key checkserver
 
 all: ca server client
 
@@ -38,8 +39,8 @@ inspect-pem:
 	openssl x509 -text -in $(FILE)
 inspect-key:
 	openssl rsa -text -in $(FILE)
-checkserver:
-	openssl s_client -connect localhost:50051
+checkserver: ca.pem
+	openssl s_client -verifyCAfile ca.pem -connect localhost:50051
 
 clean:
 	$(RM) *.key *.pem *.crt *.srl
