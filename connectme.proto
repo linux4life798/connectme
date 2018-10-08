@@ -28,5 +28,5 @@ message PutReturn {
 service FileManager {
   rpc Checksum(stream FilePath) returns (stream FileChecksum) {}
   rpc Put(stream FileChunk) returns (PutReturn) {}
-  // rpc Get(FilePath) returns (stream FileChunk){}
+  rpc Get(stream FilePath) returns (stream FileChunk) {}
 }
