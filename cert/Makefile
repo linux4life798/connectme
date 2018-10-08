@@ -31,7 +31,7 @@ ca.pem: ca.key
 # For certs that will be signed by the CA
 %.csr: %.key
 	openssl req -new -key $< -out $@ -subj "/C=$(COUNTRY)/ST=$(STATE)/L=$(CITY)/O=$(ORG)/OU=$(OU)/CN=$(CN)"
-%.crt: %.csr ca.key ca.key
+%.crt: %.csr ca.key ca.pem
 	openssl x509 -req -in $< -CA ca.pem -CAkey ca.key -CAcreateserial -out $@  -sha256
 
 # Example usage: FILE=client.crt make inspect-pem
