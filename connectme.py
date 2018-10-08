@@ -82,7 +82,7 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
             if chunk.counter == 0:
                 file.close()
                 path = chunk.path
-                file = open(path, "xb")
+                file = open(path, "wb")
                 total_files += 1
             file.write(chunk.data)
             total_bytes += len(chunk.data)
@@ -91,8 +91,7 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
 
     def Start(self):
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        connectme_pb2_grpc.add_FileManagerServicer_to_server(
-            ConnectMeServer(), self.server)
+        connectme_pb2_grpc.add_FileManagerServicer_to_server(self, self.server)
         # self.server.add_insecure_port('[::]:50051')
         self.server.add_insecure_port(self.address)
         self.server.start()
