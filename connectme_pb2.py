@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='connectme',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0f\x63onnectme.proto\x12\tconnectme\"\x18\n\x08\x46ilePath\x12\x0c\n\x04path\x18\x01 \x01(\t\")\n\x0c\x46ileChecksum\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0b\n\x03sum\x18\x02 \x01(\t\"8\n\tFileChunk\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0f\n\x07\x63ounter\x18\x02 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"5\n\tPutReturn\x12\x13\n\x0btotal_files\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\"\x07\n\x05\x45mpty2\x84\x01\n\x0b\x46ileManager\x12>\n\x08\x43hecksum\x12\x13.connectme.FilePath\x1a\x17.connectme.FileChecksum\"\x00(\x01\x30\x01\x12\x35\n\x03Put\x12\x14.connectme.FileChunk\x1a\x14.connectme.PutReturn\"\x00(\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0f\x63onnectme.proto\x12\tconnectme\"\x18\n\x08\x46ilePath\x12\x0c\n\x04path\x18\x01 \x01(\t\")\n\x0c\x46ileChecksum\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0b\n\x03sum\x18\x02 \x01(\t\"8\n\tFileChunk\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0f\n\x07\x63ounter\x18\x02 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"5\n\tPutReturn\x12\x13\n\x0btotal_files\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\x32\xbc\x01\n\x0b\x46ileManager\x12>\n\x08\x43hecksum\x12\x13.connectme.FilePath\x1a\x17.connectme.FileChecksum\"\x00(\x01\x30\x01\x12\x35\n\x03Put\x12\x14.connectme.FileChunk\x1a\x14.connectme.PutReturn\"\x00(\x01\x12\x36\n\x03Get\x12\x13.connectme.FilePath\x1a\x14.connectme.FileChunk\"\x00(\x01\x30\x01\x62\x06proto3')
 )
 
 
@@ -176,35 +176,10 @@ _PUTRETURN = _descriptor.Descriptor(
   serialized_end=210,
 )
 
-
-_EMPTY = _descriptor.Descriptor(
-  name='Empty',
-  full_name='connectme.Empty',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=212,
-  serialized_end=219,
-)
-
 DESCRIPTOR.message_types_by_name['FilePath'] = _FILEPATH
 DESCRIPTOR.message_types_by_name['FileChecksum'] = _FILECHECKSUM
 DESCRIPTOR.message_types_by_name['FileChunk'] = _FILECHUNK
 DESCRIPTOR.message_types_by_name['PutReturn'] = _PUTRETURN
-DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 FilePath = _reflection.GeneratedProtocolMessageType('FilePath', (_message.Message,), dict(
@@ -235,13 +210,6 @@ PutReturn = _reflection.GeneratedProtocolMessageType('PutReturn', (_message.Mess
   ))
 _sym_db.RegisterMessage(PutReturn)
 
-Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), dict(
-  DESCRIPTOR = _EMPTY,
-  __module__ = 'connectme_pb2'
-  # @@protoc_insertion_point(class_scope:connectme.Empty)
-  ))
-_sym_db.RegisterMessage(Empty)
-
 
 
 _FILEMANAGER = _descriptor.ServiceDescriptor(
@@ -250,8 +218,8 @@ _FILEMANAGER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=222,
-  serialized_end=354,
+  serialized_start=213,
+  serialized_end=401,
   methods=[
   _descriptor.MethodDescriptor(
     name='Checksum',
@@ -269,6 +237,15 @@ _FILEMANAGER = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_FILECHUNK,
     output_type=_PUTRETURN,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='Get',
+    full_name='connectme.FileManager.Get',
+    index=2,
+    containing_service=None,
+    input_type=_FILEPATH,
+    output_type=_FILECHUNK,
     serialized_options=None,
   ),
 ])

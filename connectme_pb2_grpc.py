@@ -24,6 +24,11 @@ class FileManagerStub(object):
         request_serializer=connectme__pb2.FileChunk.SerializeToString,
         response_deserializer=connectme__pb2.PutReturn.FromString,
         )
+    self.Get = channel.stream_stream(
+        '/connectme.FileManager/Get',
+        request_serializer=connectme__pb2.FilePath.SerializeToString,
+        response_deserializer=connectme__pb2.FileChunk.FromString,
+        )
 
 
 class FileManagerServicer(object):
@@ -44,6 +49,13 @@ class FileManagerServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def Get(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_FileManagerServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -56,6 +68,11 @@ def add_FileManagerServicer_to_server(servicer, server):
           servicer.Put,
           request_deserializer=connectme__pb2.FileChunk.FromString,
           response_serializer=connectme__pb2.PutReturn.SerializeToString,
+      ),
+      'Get': grpc.stream_stream_rpc_method_handler(
+          servicer.Get,
+          request_deserializer=connectme__pb2.FilePath.FromString,
+          response_serializer=connectme__pb2.FileChunk.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
