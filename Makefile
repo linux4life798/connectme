@@ -1,4 +1,5 @@
-# Craig Hesling <craig@hesling.com>
+# Craig Hesling
+# Oct 8, 2018
 
 .PHONY: all clean
 
