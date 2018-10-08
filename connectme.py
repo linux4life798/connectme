@@ -92,7 +92,6 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
     def Start(self):
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         connectme_pb2_grpc.add_FileManagerServicer_to_server(self, self.server)
-        # self.server.add_insecure_port('[::]:50051')
         self.server.add_insecure_port(self.address)
         self.server.start()
 
@@ -105,7 +104,8 @@ class ConnectMeClient(ConnectMe):
         super(ConnectMeClient, self).__init__(address)
 
     def Connect(self):
-        self.channel = grpc.insecure_channel('localhost:50051')
+        self.channel = grpc.insecure_channel(self.address)
+        self.filemanager = connectme_pb2_grpc.FileManagerStub(self.channel)
         self.filemanager = connectme_pb2_grpc.FileManagerStub(self.channel)
 
     def FileRemoteChecksum(self, paths: list):
