@@ -95,6 +95,20 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
         self.server.add_insecure_port(self.address)
         self.server.start()
 
+    def StartSSL(self):
+        self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        connectme_pb2_grpc.add_FileManagerServicer_to_server(self, self.server)
+        with open('cert/server.key', 'rb') as f:
+            private_key = f.read()
+        with open('cert/server.crt', 'rb') as f:
+            certificate_chain = f.read()
+        with open('cert/ca.pem', 'rb') as f:
+            root_ca = f.read()
+        # This credentials line requires client's ssl certs to have been signed by the specifies CA
+        server_credentials = grpc.ssl_server_credentials(((private_key, certificate_chain,),), root_certificates=root_ca, require_client_auth=True)
+        self.server.add_secure_port(self.address, server_credentials)
+        self.server.start()
+
     def Stop(self):
         self.server.stop(0)
 
@@ -106,6 +120,15 @@ class ConnectMeClient(ConnectMe):
     def Connect(self):
         self.channel = grpc.insecure_channel(self.address)
         self.filemanager = connectme_pb2_grpc.FileManagerStub(self.channel)
+    def ConnectSSL(self):
+        with open('cert/client.key', 'rb') as f:
+            private_key = f.read()
+        with open('cert/client.crt', 'rb') as f:
+            certificate_chain = f.read()
+        with open('cert/ca.pem', 'rb') as f:
+            root_ca = f.read()
+        credentials = grpc.ssl_channel_credentials(root_certificates=root_ca, private_key=private_key, certificate_chain=certificate_chain)
+        self.channel = grpc.secure_channel(self.address, credentials)
         self.filemanager = connectme_pb2_grpc.FileManagerStub(self.channel)
 
     def FileRemoteChecksum(self, paths: list):
@@ -171,7 +194,7 @@ if __name__ == "__main__":
             server = ConnectMeServer()
 
         try:
-            server.Start()
+            server.StartSSL()
         except grpc.RpcError as e:
             print('Failed to start server: ', e)
             exit(1)
@@ -192,7 +215,7 @@ if __name__ == "__main__":
             print('Running as client with default address')
             client = ConnectMeClient()
 
-        client.Connect()
+        client.ConnectSSL()
 
         if args.command == "checksum":
             print('files = ', args.file)
