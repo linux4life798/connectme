@@ -1,12 +1,23 @@
 # Craig Hesling
 # Oct 8, 2018
 
+COUNTRY = US
+STATE   = Pennsylvania
+CITY    = Pittsburgh
+ORG     = ConnectMeCraigLTD
+OU      = .
+CN      = .
+
 .PHONY: all ca server client clean
 
 all: ca server client
 
+ca: OU=CertAuthority
 ca: ca.key ca.pem
+server: OU=Server
+server: CN=localhost
 server: server.key server.crt
+client: OU=Client
 client: client.key client.crt
 
 %.key:
@@ -14,13 +25,13 @@ client: client.key client.crt
 
 # Generating CA certs
 ca.pem: ca.key
-	openssl req -new -x509 -nodes -key $< -sha256 -out $@
+	openssl req -new -x509 -nodes -key $< -sha256 -out $@ -subj "/C=$(COUNTRY)/ST=$(STATE)/L=$(CITY)/O=$(ORG)/OU=$(OU)/CN=$(CN)"
 
 # For certs that will be signed by the CA
 %.csr: %.key
-	openssl req -new -key $< -out $@
+	openssl req -new -key $< -out $@ -subj "/C=$(COUNTRY)/ST=$(STATE)/L=$(CITY)/O=$(ORG)/OU=$(OU)/CN=$(CN)"
 %.crt: %.csr ca.key ca.key
-	openssl x509 -req -in $< -CA ca.pem -CAkey ca.key -CAcreateserial -out $*.crt -days 1825 -sha256
+	openssl x509 -req -in $< -CA ca.pem -CAkey ca.key -CAcreateserial -out $@  -sha256
 
 # Example usage: FILE=client.crt make inspect-pem
 inspect-pem:
