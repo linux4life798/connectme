@@ -25,8 +25,42 @@ message PutReturn {
   uint64 total_bytes = 2;
 }
 
+message VersionRequest {
+}
+
+message VersionResponse {
+  uint32 major = 1;
+  uint32 minor = 2;
+}
+
 service FileManager {
   rpc Checksum(stream FilePath) returns (stream FileChecksum) {}
   rpc Put(stream FileChunk) returns (PutReturn) {}
   rpc Get(stream FilePath) returns (stream FileChunk) {}
+}
+
+service Meta {
+  rpc Version(VersionRequest) returns (VersionResponse) {}
+}
+
+message LaunchRequest {
+  string command = 1;
+  repeated string arguments = 2;
+}
+
+message LaunchResponse {
+}
+
+enum ControlSignal {
+  SIGINT = 0;
+}
+
+message ConnectData {
+  bytes data = 1;
+  ControlSignal ctrl = 2;
+}
+
+service Console {
+  rpc Launch(LaunchRequest) returns (LaunchResponse);
+  rpc Connect(stream ConnectData) returns (stream ConnectData);
 }
