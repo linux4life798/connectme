@@ -2,178 +2,34 @@
 # Craig Hesling
 # Oct 7, 2018
 
-import os
 import argparse
-import concurrent.futures as futures
-import hashlib
+import sys
 import time
 
 import grpc
 
-import connectme_pb2
-import connectme_pb2_grpc
-
-
-DEFAULT_SERVER_ADDRESS = "[::]:50051"
-DEFAULT_CLIENT_ADDRESS = "localhost:50051"
+from connectme_client import *
+from connectme_common import *
+from connectme_server import *
 
 # Things I Want To Ensure Correctness On
 # * Byte order correction
 # * Timeout for running remote commands (maybe sigstop and ask client what to do)
 # * SSL
 
-
-class ConnectMe:
-    def __init__(self, address):
-        # We should ask the local FS what the block size is
-        self.local_block_size = 65536
-        self.address = address
-
-    def sha256file(self, path):
-        sha256 = hashlib.sha256()
-        with open(path, 'rb') as f:
-            while True:
-                data = f.read(self.local_block_size)
-                if not data:
-                    break
-                sha256.update(data)
-        return sha256.hexdigest()
-
-    def fileChunkGenerator(self, paths: list, prefix: str):
-        """
-        Path names are in terms of the remote server path
-        """
-        for path in paths:
-            counter: int = 0
-            with open(path, 'rb') as f:
-                # Read chunks and send
-                while True:
-                    data = f.read(self.local_block_size)
-                    if not data:
-                        break
-                    yield connectme_pb2.FileChunk(path=prefix+path, counter=counter, data=data)
-                    counter += 1
-
-
-class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
-    def __init__(self, address=DEFAULT_SERVER_ADDRESS):
-        super(ConnectMeServer, self).__init__(address)
-
-    def Checksum(self, request_iterator: connectme_pb2.FilePath, context: grpc.ServicerContext):
-        """
-        """
-        for file in request_iterator:
-            sha256: str
-            try:
-                sha256 = self.sha256file(file.path)
-            except FileNotFoundError:
-                print('Failed to find {}'.format(file.path))
-                details = "File \"{}\" does not exist".format(file.path)
-                context.abort(grpc.StatusCode.NOT_FOUND, details)
-            yield connectme_pb2.FileChecksum(path=file.path, sum=sha256)
-
-    def Put(self, request_iterator: connectme_pb2.FileChunk, context: grpc.ServicerContext):
-        total_files: int = 0
-        total_bytes: int = 0
-
-        path: str = "/dev/null"
-        file = open(path, "wb")
-        for chunk in request_iterator:
-            if chunk.counter == 0:
-                file.close()
-                path = chunk.path
-                file = open(path, "wb")
-                total_files += 1
-            file.write(chunk.data)
-            total_bytes += len(chunk.data)
-        file.close()
-        return connectme_pb2.PutReturn(total_files=total_files, total_bytes=total_bytes)
-
-    def Start(self):
-        self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        connectme_pb2_grpc.add_FileManagerServicer_to_server(self, self.server)
-        self.server.add_insecure_port(self.address)
-        self.server.start()
-
-    def StartSSL(self):
-        self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        connectme_pb2_grpc.add_FileManagerServicer_to_server(self, self.server)
-        with open('cert/server.key', 'rb') as f:
-            private_key = f.read()
-        with open('cert/server.crt', 'rb') as f:
-            certificate_chain = f.read()
-        with open('cert/ca.pem', 'rb') as f:
-            root_ca = f.read()
-        # This credentials line requires client's ssl certs to have been signed by the specifies CA
-        server_credentials = grpc.ssl_server_credentials(((private_key, certificate_chain,),), root_certificates=root_ca, require_client_auth=True)
-        self.server.add_secure_port(self.address, server_credentials)
-        self.server.start()
-
-    def Stop(self):
-        self.server.stop(0)
-
-
-class ConnectMeClient(ConnectMe):
-    def __init__(self, address=DEFAULT_CLIENT_ADDRESS):
-        super(ConnectMeClient, self).__init__(address)
-
-    def Connect(self):
-        self.channel = grpc.insecure_channel(self.address)
-        self.filemanager = connectme_pb2_grpc.FileManagerStub(self.channel)
-    def ConnectSSL(self):
-        with open('cert/client.key', 'rb') as f:
-            private_key = f.read()
-        with open('cert/client.crt', 'rb') as f:
-            certificate_chain = f.read()
-        with open('cert/ca.pem', 'rb') as f:
-            root_ca = f.read()
-        credentials = grpc.ssl_channel_credentials(root_certificates=root_ca, private_key=private_key, certificate_chain=certificate_chain)
-        self.channel = grpc.secure_channel(self.address, credentials)
-        self.filemanager = connectme_pb2_grpc.FileManagerStub(self.channel)
-
-    def FileRemoteChecksum(self, paths: list):
-        """
-        Retrieves the checksum of the remote file paths listed in the paths list
-        This function can throw FileNotFoundError.
-        """
-        try:
-            g = (connectme_pb2.FilePath(path=p) for p in paths)
-            return [c.sum for c in self.filemanager.Checksum(g)]
-        except grpc.RpcError as e:
-            status_code = e.code()  # status_code.name and status_code.value
-            if grpc.StatusCode.NOT_FOUND == status_code:
-                raise FileNotFoundError(e.details()) from e
-            else:
-                # pass any other gRPC erros to user
-                raise e
-
-    def FilePut(self, source_paths: list, remote_destination: str):
-        """
-        Transfers the files listed in source_paths to the remote directory remote_destination
-        This function can throw FileNotFoundError.
-        """
-
-        try:
-            lastChar = remote_destination[len(remote_destination)-1]
-            if lastChar != '/':
-                remote_destination += '/'
-            g = self.fileChunkGenerator(source_paths, remote_destination)
-            status = self.filemanager.Put(g)
-            print('# Copied {} files'.format(status.total_files))
-            print('# Copied {} bytes'.format(status.total_bytes))
-        except grpc.RpcError as e:
-            status_code = e.code()  # status_code.name and status_code.value
-            if grpc.StatusCode.NOT_FOUND == status_code:
-                raise FileNotFoundError(e.details()) from e
-            else:
-                # pass any other gRPC erros to user
-                raise e
+# Write a pair of python scripts to communicate and perform a small set of actions between two machines. Use sockets for the communication mechanism. Implement the following commands.
+# Execute shell command on server
+# Transfer file to server
+# Retrieve file from server
+# Retrieve server version info
+# Send a chunk of data, which the server will calculate a checksum and return the checksum (crc32, sha256, your choice)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("address", help="the server address to bind or connect to", nargs="?", default="localhost:50051")
+    parser.add_argument("address", help="the server address to bind or connect to", nargs="?", default="-")
     parser.add_argument("-s", "--server", help="indicate this is the server", action="store_true")
+    parser.add_argument("-i", "--insecure", help="indicate if the connection should not use TLS/SSL", action="store_true")
     subparsers = parser.add_subparsers(dest='command')
 
     parser_checksum = subparsers.add_parser('checksum', help='Request the checksum of remote files')
@@ -182,19 +38,28 @@ if __name__ == "__main__":
     parser_put = subparsers.add_parser('put', help='Transfer local files to remote server')
     parser_put.add_argument('local_file', nargs="+",type=str, help='The path of files to send')
     parser_put.add_argument('remote_destination', type=str, help='The remote path where we will deposit the files')
+
+    parser_get = subparsers.add_parser('get', help='Transfer remote files to local client')
+    parser_get.add_argument('remote_file', nargs="+", type=str, help='The path of the remote files')
+    parser_get.add_argument('local_destination', type=str, help='The local directory to deposit the files')
+
+    parser_launch = subparsers.add_parser('launch', help='Launch a command on remote host')
+    parser_launch.add_argument('cmd', type=str, help='The command path')
+    parser_launch.add_argument('args', nargs="*", type=str, help='The command arguments')
     args = parser.parse_args()
 
     if args.server:
         server: ConnectMeServer
-        if args.address is not None:
-            print('Running as server on', args.address)
-            server = ConnectMeServer(args.address)
-        else:
-            print('Running as server')
-            server = ConnectMeServer()
+        if args.address == "-":
+            args.address = ConnectMe.DEFAULT_SERVER_ADDRESS
+        print('Running as server on', args.address, file=sys.stderr)
+        server = ConnectMeServer(args.address)
 
         try:
-            server.StartSSL()
+            if args.insecure:
+                server.Start()
+            else:
+                server.StartSSL()
         except grpc.RpcError as e:
             print('Failed to start server: ', e)
             exit(1)
@@ -208,31 +73,44 @@ if __name__ == "__main__":
             server.Stop()
     else:
         client: ConnectMeClient
-        if args.address is not None:
-            print('Running as client to ', args.address)
-            client = ConnectMeClient(args.address)
-        else:
-            print('Running as client with default address')
-            client = ConnectMeClient()
+        if args.address == "-":
+            args.address = ConnectMe.DEFAULT_CLIENT_ADDRESS
+        print('Running as client to ', args.address, file=sys.stderr)
+        client = ConnectMeClient(args.address)
 
-        client.ConnectSSL()
+        if args.insecure:
+            client.Connect()
+        else:
+            client.ConnectSSL()
 
         if args.command == "checksum":
-            print('files = ', args.file)
+            print('files = ', args.file, file=sys.stderr)
             try:
-                checksum = client.FileRemoteChecksum(args.file)
+                checksums = client.FileRemoteChecksum(args.file)
             except FileNotFoundError as e:
                 print('File not found: ', e)
             else:
                 # Output the sum and file in standard checksum format
-                for (f, sum) in zip(args.file, checksum):
+                for f,sum in checksums.items():
                     print(sum, f)
         elif args.command == "put":
-            print('local_file = ', args.local_file)
-            print('remote_destination = ', args.remote_destination)
+            print('local_file = ', args.local_file, file=sys.stderr)
+            print('remote_destination = ', args.remote_destination, file=sys.stderr)
             try:
-                checksum = client.FilePut(args.local_file, args.remote_destination)
+                client.FilePut(args.local_file, args.remote_destination)
             except FileNotFoundError as e:
                 print('File not found: ', e)
+        elif args.command == "get":
+            print('remote_file = ', args.remote_file, file=sys.stderr)
+            print('local_destination = ', args.local_destination, file=sys.stderr)
+            try:
+                client.FileGet(args.remote_file, args.local_destination)
             except FileNotFoundError as e:
                 print('File not found: ', e)
+        elif args.command == "launch":
+            print('cmd = ', args.cmd, file=sys.stderr)
+            print('args = ', args.args, file=sys.stderr)
+            # try:
+            #     checksum = client.FileGet(args.remote_file, args.local_destination)
+            # except FileNotFoundError as e:
+            #     print('File not found: ', e)
