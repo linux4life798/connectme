@@ -3,6 +3,7 @@
 
 import sys
 _b=sys.version_info[0]<3 and (lambda x:x) or (lambda x:x.encode('latin1'))
+from google.protobuf.internal import enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
@@ -19,9 +20,29 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='connectme',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0f\x63onnectme.proto\x12\tconnectme\"\x18\n\x08\x46ilePath\x12\x0c\n\x04path\x18\x01 \x01(\t\")\n\x0c\x46ileChecksum\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0b\n\x03sum\x18\x02 \x01(\t\"8\n\tFileChunk\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0f\n\x07\x63ounter\x18\x02 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"5\n\tPutReturn\x12\x13\n\x0btotal_files\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\x32\xbc\x01\n\x0b\x46ileManager\x12>\n\x08\x43hecksum\x12\x13.connectme.FilePath\x1a\x17.connectme.FileChecksum\"\x00(\x01\x30\x01\x12\x35\n\x03Put\x12\x14.connectme.FileChunk\x1a\x14.connectme.PutReturn\"\x00(\x01\x12\x36\n\x03Get\x12\x13.connectme.FilePath\x1a\x14.connectme.FileChunk\"\x00(\x01\x30\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0f\x63onnectme.proto\x12\tconnectme\"\x18\n\x08\x46ilePath\x12\x0c\n\x04path\x18\x01 \x01(\t\")\n\x0c\x46ileChecksum\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0b\n\x03sum\x18\x02 \x01(\t\"8\n\tFileChunk\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0f\n\x07\x63ounter\x18\x02 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"5\n\tPutReturn\x12\x13\n\x0btotal_files\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\"\x10\n\x0eVersionRequest\"/\n\x0fVersionResponse\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r\"3\n\rLaunchRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x11\n\targuments\x18\x02 \x03(\t\"\x10\n\x0eLaunchResponse\"C\n\x0b\x43onnectData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12&\n\x04\x63trl\x18\x02 \x01(\x0e\x32\x18.connectme.ControlSignal*\x1b\n\rControlSignal\x12\n\n\x06SIGINT\x10\x00\x32\xbc\x01\n\x0b\x46ileManager\x12>\n\x08\x43hecksum\x12\x13.connectme.FilePath\x1a\x17.connectme.FileChecksum\"\x00(\x01\x30\x01\x12\x35\n\x03Put\x12\x14.connectme.FileChunk\x1a\x14.connectme.PutReturn\"\x00(\x01\x12\x36\n\x03Get\x12\x13.connectme.FilePath\x1a\x14.connectme.FileChunk\"\x00(\x01\x30\x01\x32J\n\x04Meta\x12\x42\n\x07Version\x12\x19.connectme.VersionRequest\x1a\x1a.connectme.VersionResponse\"\x00\x32\x87\x01\n\x07\x43onsole\x12=\n\x06Launch\x12\x18.connectme.LaunchRequest\x1a\x19.connectme.LaunchResponse\x12=\n\x07\x43onnect\x12\x16.connectme.ConnectData\x1a\x16.connectme.ConnectData(\x01\x30\x01\x62\x06proto3')
 )
 
+_CONTROLSIGNAL = _descriptor.EnumDescriptor(
+  name='ControlSignal',
+  full_name='connectme.ControlSignal',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='SIGINT', index=0, number=0,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=419,
+  serialized_end=446,
+)
+_sym_db.RegisterEnumDescriptor(_CONTROLSIGNAL)
+
+ControlSignal = enum_type_wrapper.EnumTypeWrapper(_CONTROLSIGNAL)
+SIGINT = 0
 
 
 
@@ -176,10 +197,179 @@ _PUTRETURN = _descriptor.Descriptor(
   serialized_end=210,
 )
 
+
+_VERSIONREQUEST = _descriptor.Descriptor(
+  name='VersionRequest',
+  full_name='connectme.VersionRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=212,
+  serialized_end=228,
+)
+
+
+_VERSIONRESPONSE = _descriptor.Descriptor(
+  name='VersionResponse',
+  full_name='connectme.VersionResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='major', full_name='connectme.VersionResponse.major', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='minor', full_name='connectme.VersionResponse.minor', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=230,
+  serialized_end=277,
+)
+
+
+_LAUNCHREQUEST = _descriptor.Descriptor(
+  name='LaunchRequest',
+  full_name='connectme.LaunchRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='command', full_name='connectme.LaunchRequest.command', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='arguments', full_name='connectme.LaunchRequest.arguments', index=1,
+      number=2, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=279,
+  serialized_end=330,
+)
+
+
+_LAUNCHRESPONSE = _descriptor.Descriptor(
+  name='LaunchResponse',
+  full_name='connectme.LaunchResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=332,
+  serialized_end=348,
+)
+
+
+_CONNECTDATA = _descriptor.Descriptor(
+  name='ConnectData',
+  full_name='connectme.ConnectData',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='data', full_name='connectme.ConnectData.data', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ctrl', full_name='connectme.ConnectData.ctrl', index=1,
+      number=2, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=350,
+  serialized_end=417,
+)
+
+_CONNECTDATA.fields_by_name['ctrl'].enum_type = _CONTROLSIGNAL
 DESCRIPTOR.message_types_by_name['FilePath'] = _FILEPATH
 DESCRIPTOR.message_types_by_name['FileChecksum'] = _FILECHECKSUM
 DESCRIPTOR.message_types_by_name['FileChunk'] = _FILECHUNK
 DESCRIPTOR.message_types_by_name['PutReturn'] = _PUTRETURN
+DESCRIPTOR.message_types_by_name['VersionRequest'] = _VERSIONREQUEST
+DESCRIPTOR.message_types_by_name['VersionResponse'] = _VERSIONRESPONSE
+DESCRIPTOR.message_types_by_name['LaunchRequest'] = _LAUNCHREQUEST
+DESCRIPTOR.message_types_by_name['LaunchResponse'] = _LAUNCHRESPONSE
+DESCRIPTOR.message_types_by_name['ConnectData'] = _CONNECTDATA
+DESCRIPTOR.enum_types_by_name['ControlSignal'] = _CONTROLSIGNAL
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 FilePath = _reflection.GeneratedProtocolMessageType('FilePath', (_message.Message,), dict(
@@ -210,6 +400,41 @@ PutReturn = _reflection.GeneratedProtocolMessageType('PutReturn', (_message.Mess
   ))
 _sym_db.RegisterMessage(PutReturn)
 
+VersionRequest = _reflection.GeneratedProtocolMessageType('VersionRequest', (_message.Message,), dict(
+  DESCRIPTOR = _VERSIONREQUEST,
+  __module__ = 'connectme_pb2'
+  # @@protoc_insertion_point(class_scope:connectme.VersionRequest)
+  ))
+_sym_db.RegisterMessage(VersionRequest)
+
+VersionResponse = _reflection.GeneratedProtocolMessageType('VersionResponse', (_message.Message,), dict(
+  DESCRIPTOR = _VERSIONRESPONSE,
+  __module__ = 'connectme_pb2'
+  # @@protoc_insertion_point(class_scope:connectme.VersionResponse)
+  ))
+_sym_db.RegisterMessage(VersionResponse)
+
+LaunchRequest = _reflection.GeneratedProtocolMessageType('LaunchRequest', (_message.Message,), dict(
+  DESCRIPTOR = _LAUNCHREQUEST,
+  __module__ = 'connectme_pb2'
+  # @@protoc_insertion_point(class_scope:connectme.LaunchRequest)
+  ))
+_sym_db.RegisterMessage(LaunchRequest)
+
+LaunchResponse = _reflection.GeneratedProtocolMessageType('LaunchResponse', (_message.Message,), dict(
+  DESCRIPTOR = _LAUNCHRESPONSE,
+  __module__ = 'connectme_pb2'
+  # @@protoc_insertion_point(class_scope:connectme.LaunchResponse)
+  ))
+_sym_db.RegisterMessage(LaunchResponse)
+
+ConnectData = _reflection.GeneratedProtocolMessageType('ConnectData', (_message.Message,), dict(
+  DESCRIPTOR = _CONNECTDATA,
+  __module__ = 'connectme_pb2'
+  # @@protoc_insertion_point(class_scope:connectme.ConnectData)
+  ))
+_sym_db.RegisterMessage(ConnectData)
+
 
 
 _FILEMANAGER = _descriptor.ServiceDescriptor(
@@ -218,8 +443,8 @@ _FILEMANAGER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=213,
-  serialized_end=401,
+  serialized_start=449,
+  serialized_end=637,
   methods=[
   _descriptor.MethodDescriptor(
     name='Checksum',
@@ -252,5 +477,62 @@ _FILEMANAGER = _descriptor.ServiceDescriptor(
 _sym_db.RegisterServiceDescriptor(_FILEMANAGER)
 
 DESCRIPTOR.services_by_name['FileManager'] = _FILEMANAGER
+
+
+_META = _descriptor.ServiceDescriptor(
+  name='Meta',
+  full_name='connectme.Meta',
+  file=DESCRIPTOR,
+  index=1,
+  serialized_options=None,
+  serialized_start=639,
+  serialized_end=713,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='Version',
+    full_name='connectme.Meta.Version',
+    index=0,
+    containing_service=None,
+    input_type=_VERSIONREQUEST,
+    output_type=_VERSIONRESPONSE,
+    serialized_options=None,
+  ),
+])
+_sym_db.RegisterServiceDescriptor(_META)
+
+DESCRIPTOR.services_by_name['Meta'] = _META
+
+
+_CONSOLE = _descriptor.ServiceDescriptor(
+  name='Console',
+  full_name='connectme.Console',
+  file=DESCRIPTOR,
+  index=2,
+  serialized_options=None,
+  serialized_start=716,
+  serialized_end=851,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='Launch',
+    full_name='connectme.Console.Launch',
+    index=0,
+    containing_service=None,
+    input_type=_LAUNCHREQUEST,
+    output_type=_LAUNCHRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='Connect',
+    full_name='connectme.Console.Connect',
+    index=1,
+    containing_service=None,
+    input_type=_CONNECTDATA,
+    output_type=_CONNECTDATA,
+    serialized_options=None,
+  ),
+])
+_sym_db.RegisterServiceDescriptor(_CONSOLE)
+
+DESCRIPTOR.services_by_name['Console'] = _CONSOLE
 
 # @@protoc_insertion_point(module_scope)

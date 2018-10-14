@@ -78,3 +78,104 @@ def add_FileManagerServicer_to_server(servicer, server):
   generic_handler = grpc.method_handlers_generic_handler(
       'connectme.FileManager', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))
+
+
+class MetaStub(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def __init__(self, channel):
+    """Constructor.
+
+    Args:
+      channel: A grpc.Channel.
+    """
+    self.Version = channel.unary_unary(
+        '/connectme.Meta/Version',
+        request_serializer=connectme__pb2.VersionRequest.SerializeToString,
+        response_deserializer=connectme__pb2.VersionResponse.FromString,
+        )
+
+
+class MetaServicer(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def Version(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+
+def add_MetaServicer_to_server(servicer, server):
+  rpc_method_handlers = {
+      'Version': grpc.unary_unary_rpc_method_handler(
+          servicer.Version,
+          request_deserializer=connectme__pb2.VersionRequest.FromString,
+          response_serializer=connectme__pb2.VersionResponse.SerializeToString,
+      ),
+  }
+  generic_handler = grpc.method_handlers_generic_handler(
+      'connectme.Meta', rpc_method_handlers)
+  server.add_generic_rpc_handlers((generic_handler,))
+
+
+class ConsoleStub(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def __init__(self, channel):
+    """Constructor.
+
+    Args:
+      channel: A grpc.Channel.
+    """
+    self.Launch = channel.unary_unary(
+        '/connectme.Console/Launch',
+        request_serializer=connectme__pb2.LaunchRequest.SerializeToString,
+        response_deserializer=connectme__pb2.LaunchResponse.FromString,
+        )
+    self.Connect = channel.stream_stream(
+        '/connectme.Console/Connect',
+        request_serializer=connectme__pb2.ConnectData.SerializeToString,
+        response_deserializer=connectme__pb2.ConnectData.FromString,
+        )
+
+
+class ConsoleServicer(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def Launch(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def Connect(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+
+def add_ConsoleServicer_to_server(servicer, server):
+  rpc_method_handlers = {
+      'Launch': grpc.unary_unary_rpc_method_handler(
+          servicer.Launch,
+          request_deserializer=connectme__pb2.LaunchRequest.FromString,
+          response_serializer=connectme__pb2.LaunchResponse.SerializeToString,
+      ),
+      'Connect': grpc.stream_stream_rpc_method_handler(
+          servicer.Connect,
+          request_deserializer=connectme__pb2.ConnectData.FromString,
+          response_serializer=connectme__pb2.ConnectData.SerializeToString,
+      ),
+  }
+  generic_handler = grpc.method_handlers_generic_handler(
+      'connectme.Console', rpc_method_handlers)
+  server.add_generic_rpc_handlers((generic_handler,))
