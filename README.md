@@ -1,7 +1,13 @@
 # ConnectMe
 
+# Exmple usage
+```bash
+./connectme.py - launch -- ls -al
+```
+
 # Features
 * TLS/SSL enabled with mutual authentication
+* Remote file glob evaluation
 
 # Prerequisites
 
