@@ -83,7 +83,7 @@ if __name__ == "__main__":
         client: ConnectMeClient
         if args.address == "-":
             args.address = ConnectMe.DEFAULT_CLIENT_ADDRESS
-        print('Running as client to ', args.address, file=sys.stderr)
+        print('Running as client to', args.address, file=sys.stderr)
         client = ConnectMeClient(args.address)
 
         if args.insecure:
@@ -92,34 +92,34 @@ if __name__ == "__main__":
             client.ConnectSSL()
 
         if args.command == "checksum":
-            print('files = ', args.file, file=sys.stderr)
+            logging.debug('files = %s' % args.file)
             try:
                 checksums = client.FileRemoteChecksum(args.file)
             except FileNotFoundError as e:
-                print('File not found: ', e)
+                logging.error('File not found: %s' % e)
             else:
                 # Output the sum and file in standard checksum format
                 for f,sum in checksums.items():
                     print(sum, f)
         elif args.command == "put":
-            print('local_file = ', args.local_file, file=sys.stderr)
-            print('remote_destination = ', args.remote_destination, file=sys.stderr)
+            logging.debug('local_file = %s' % args.local_file)
+            logging.debug('remote_destination = %s' % args.remote_destination)
             try:
                 client.FilePut(args.local_file, args.remote_destination)
             except FileNotFoundError as e:
                 print('File not found: ', e)
         elif args.command == "get":
-            print('remote_file = ', args.remote_file, file=sys.stderr)
-            print('local_destination = ', args.local_destination, file=sys.stderr)
+            logging.debug('remote_file = %s' % args.remote_file)
+            logging.debug('local_destination = %s' % args.local_destination)
             try:
                 client.FileGet(args.remote_file, args.local_destination)
             except FileNotFoundError as e:
-                print('File not found: ', e)
+                logging.error('File not found: %s' % e)
         elif args.command == "version":
             cver = client.ClientVersion()
-            print('Client: ', client.FormatVersion(cver))
+            print('Client: %s' % client.FormatVersion(cver))
             rver = client.RemoteVersion()
-            print('Remote: ', client.FormatVersion(rver))
+            print('Remote: %s' % client.FormatVersion(rver))
             # To be compatible majors must match AND server must have at least client minor version
             if cver[0]!=rver[0] or cver[1]>rver[1]:
                 print('Client may be incompatible with remote server')
