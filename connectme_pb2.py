@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='connectme',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0f\x63onnectme.proto\x12\tconnectme\"\x18\n\x08\x46ilePath\x12\x0c\n\x04path\x18\x01 \x01(\t\")\n\x0c\x46ileChecksum\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0b\n\x03sum\x18\x02 \x01(\t\"8\n\tFileChunk\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0f\n\x07\x63ounter\x18\x02 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"5\n\tPutReturn\x12\x13\n\x0btotal_files\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\"\x10\n\x0eVersionRequest\"/\n\x0fVersionResponse\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r\"3\n\rLaunchRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x11\n\targuments\x18\x02 \x03(\t\"\x10\n\x0eLaunchResponse\"C\n\x0b\x43onnectData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12&\n\x04\x63trl\x18\x02 \x01(\x0e\x32\x18.connectme.ControlSignal*\x1b\n\rControlSignal\x12\n\n\x06SIGINT\x10\x00\x32\xbc\x01\n\x0b\x46ileManager\x12>\n\x08\x43hecksum\x12\x13.connectme.FilePath\x1a\x17.connectme.FileChecksum\"\x00(\x01\x30\x01\x12\x35\n\x03Put\x12\x14.connectme.FileChunk\x1a\x14.connectme.PutReturn\"\x00(\x01\x12\x36\n\x03Get\x12\x13.connectme.FilePath\x1a\x14.connectme.FileChunk\"\x00(\x01\x30\x01\x32J\n\x04Meta\x12\x42\n\x07Version\x12\x19.connectme.VersionRequest\x1a\x1a.connectme.VersionResponse\"\x00\x32\x87\x01\n\x07\x43onsole\x12=\n\x06Launch\x12\x18.connectme.LaunchRequest\x1a\x19.connectme.LaunchResponse\x12=\n\x07\x43onnect\x12\x16.connectme.ConnectData\x1a\x16.connectme.ConnectData(\x01\x30\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0f\x63onnectme.proto\x12\tconnectme\"\x18\n\x08\x46ilePath\x12\x0c\n\x04path\x18\x01 \x01(\t\")\n\x0c\x46ileChecksum\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0b\n\x03sum\x18\x02 \x01(\t\"8\n\tFileChunk\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0f\n\x07\x63ounter\x18\x02 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"5\n\tPutReturn\x12\x13\n\x0btotal_files\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\"\x10\n\x0eVersionRequest\"/\n\x0fVersionResponse\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r\"H\n\rLaunchRequest\x12\x13\n\x0bwillconnect\x18\x01 \x01(\x08\x12\x0f\n\x07\x63ommand\x18\x02 \x01(\t\x12\x11\n\targuments\x18\x03 \x03(\t\"\x10\n\x0eLaunchResponse\"}\n\x0b\x43onnectData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12&\n\x07\x63hannel\x18\x02 \x01(\x0e\x32\x15.connectme.DataStream\x12&\n\x04\x63trl\x18\x03 \x01(\x0e\x32\x18.connectme.ControlSignal\x12\x10\n\x08\x65xitcode\x18\x04 \x01(\x05*F\n\rControlSignal\x12\t\n\x05NOSIG\x10\x00\x12\x07\n\x03\x45OF\x10\x01\x12\x08\n\x04\x45XIT\x10\x02\x12\n\n\x06SIGINT\x10\x03\x12\x0b\n\x07SIGKILL\x10\x04*=\n\nDataStream\x12\x0c\n\x08NOSTREAM\x10\x00\x12\t\n\x05STDIN\x10\x01\x12\n\n\x06STDOUT\x10\x02\x12\n\n\x06STDERR\x10\x03\x32\xbc\x01\n\x0b\x46ileManager\x12>\n\x08\x43hecksum\x12\x13.connectme.FilePath\x1a\x17.connectme.FileChecksum\"\x00(\x01\x30\x01\x12\x35\n\x03Put\x12\x14.connectme.FileChunk\x1a\x14.connectme.PutReturn\"\x00(\x01\x12\x36\n\x03Get\x12\x13.connectme.FilePath\x1a\x14.connectme.FileChunk\"\x00(\x01\x30\x01\x32Q\n\x0bMetaManager\x12\x42\n\x07Version\x12\x19.connectme.VersionRequest\x1a\x1a.connectme.VersionResponse\"\x00\x32\x8e\x01\n\x0e\x43onsoleManager\x12=\n\x06Launch\x12\x18.connectme.LaunchRequest\x1a\x19.connectme.LaunchResponse\x12=\n\x07\x43onnect\x12\x16.connectme.ConnectData\x1a\x16.connectme.ConnectData(\x01\x30\x01\x62\x06proto3')
 )
 
 _CONTROLSIGNAL = _descriptor.EnumDescriptor(
@@ -30,19 +30,74 @@ _CONTROLSIGNAL = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='SIGINT', index=0, number=0,
+      name='NOSIG', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EOF', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EXIT', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SIGINT', index=3, number=3,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SIGKILL', index=4, number=4,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=419,
-  serialized_end=446,
+  serialized_start=498,
+  serialized_end=568,
 )
 _sym_db.RegisterEnumDescriptor(_CONTROLSIGNAL)
 
 ControlSignal = enum_type_wrapper.EnumTypeWrapper(_CONTROLSIGNAL)
-SIGINT = 0
+_DATASTREAM = _descriptor.EnumDescriptor(
+  name='DataStream',
+  full_name='connectme.DataStream',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='NOSTREAM', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='STDIN', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='STDOUT', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='STDERR', index=3, number=3,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=570,
+  serialized_end=631,
+)
+_sym_db.RegisterEnumDescriptor(_DATASTREAM)
+
+DataStream = enum_type_wrapper.EnumTypeWrapper(_DATASTREAM)
+NOSIG = 0
+EOF = 1
+EXIT = 2
+SIGINT = 3
+SIGKILL = 4
+NOSTREAM = 0
+STDIN = 1
+STDOUT = 2
+STDERR = 3
 
 
 
@@ -268,15 +323,22 @@ _LAUNCHREQUEST = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='command', full_name='connectme.LaunchRequest.command', index=0,
-      number=1, type=9, cpp_type=9, label=1,
+      name='willconnect', full_name='connectme.LaunchRequest.willconnect', index=0,
+      number=1, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='command', full_name='connectme.LaunchRequest.command', index=1,
+      number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='arguments', full_name='connectme.LaunchRequest.arguments', index=1,
-      number=2, type=9, cpp_type=9, label=3,
+      name='arguments', full_name='connectme.LaunchRequest.arguments', index=2,
+      number=3, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -294,7 +356,7 @@ _LAUNCHREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=279,
-  serialized_end=330,
+  serialized_end=351,
 )
 
 
@@ -317,8 +379,8 @@ _LAUNCHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=332,
-  serialized_end=348,
+  serialized_start=353,
+  serialized_end=369,
 )
 
 
@@ -337,8 +399,22 @@ _CONNECTDATA = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ctrl', full_name='connectme.ConnectData.ctrl', index=1,
+      name='channel', full_name='connectme.ConnectData.channel', index=1,
       number=2, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ctrl', full_name='connectme.ConnectData.ctrl', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='exitcode', full_name='connectme.ConnectData.exitcode', index=3,
+      number=4, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -355,10 +431,11 @@ _CONNECTDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=350,
-  serialized_end=417,
+  serialized_start=371,
+  serialized_end=496,
 )
 
+_CONNECTDATA.fields_by_name['channel'].enum_type = _DATASTREAM
 _CONNECTDATA.fields_by_name['ctrl'].enum_type = _CONTROLSIGNAL
 DESCRIPTOR.message_types_by_name['FilePath'] = _FILEPATH
 DESCRIPTOR.message_types_by_name['FileChecksum'] = _FILECHECKSUM
@@ -370,6 +447,7 @@ DESCRIPTOR.message_types_by_name['LaunchRequest'] = _LAUNCHREQUEST
 DESCRIPTOR.message_types_by_name['LaunchResponse'] = _LAUNCHRESPONSE
 DESCRIPTOR.message_types_by_name['ConnectData'] = _CONNECTDATA
 DESCRIPTOR.enum_types_by_name['ControlSignal'] = _CONTROLSIGNAL
+DESCRIPTOR.enum_types_by_name['DataStream'] = _DATASTREAM
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 FilePath = _reflection.GeneratedProtocolMessageType('FilePath', (_message.Message,), dict(
@@ -443,8 +521,8 @@ _FILEMANAGER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=449,
-  serialized_end=637,
+  serialized_start=634,
+  serialized_end=822,
   methods=[
   _descriptor.MethodDescriptor(
     name='Checksum',
@@ -479,18 +557,18 @@ _sym_db.RegisterServiceDescriptor(_FILEMANAGER)
 DESCRIPTOR.services_by_name['FileManager'] = _FILEMANAGER
 
 
-_META = _descriptor.ServiceDescriptor(
-  name='Meta',
-  full_name='connectme.Meta',
+_METAMANAGER = _descriptor.ServiceDescriptor(
+  name='MetaManager',
+  full_name='connectme.MetaManager',
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
-  serialized_start=639,
-  serialized_end=713,
+  serialized_start=824,
+  serialized_end=905,
   methods=[
   _descriptor.MethodDescriptor(
     name='Version',
-    full_name='connectme.Meta.Version',
+    full_name='connectme.MetaManager.Version',
     index=0,
     containing_service=None,
     input_type=_VERSIONREQUEST,
@@ -498,23 +576,23 @@ _META = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
 ])
-_sym_db.RegisterServiceDescriptor(_META)
+_sym_db.RegisterServiceDescriptor(_METAMANAGER)
 
-DESCRIPTOR.services_by_name['Meta'] = _META
+DESCRIPTOR.services_by_name['MetaManager'] = _METAMANAGER
 
 
-_CONSOLE = _descriptor.ServiceDescriptor(
-  name='Console',
-  full_name='connectme.Console',
+_CONSOLEMANAGER = _descriptor.ServiceDescriptor(
+  name='ConsoleManager',
+  full_name='connectme.ConsoleManager',
   file=DESCRIPTOR,
   index=2,
   serialized_options=None,
-  serialized_start=716,
-  serialized_end=851,
+  serialized_start=908,
+  serialized_end=1050,
   methods=[
   _descriptor.MethodDescriptor(
     name='Launch',
-    full_name='connectme.Console.Launch',
+    full_name='connectme.ConsoleManager.Launch',
     index=0,
     containing_service=None,
     input_type=_LAUNCHREQUEST,
@@ -523,7 +601,7 @@ _CONSOLE = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Connect',
-    full_name='connectme.Console.Connect',
+    full_name='connectme.ConsoleManager.Connect',
     index=1,
     containing_service=None,
     input_type=_CONNECTDATA,
@@ -531,8 +609,8 @@ _CONSOLE = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
 ])
-_sym_db.RegisterServiceDescriptor(_CONSOLE)
+_sym_db.RegisterServiceDescriptor(_CONSOLEMANAGER)
 
-DESCRIPTOR.services_by_name['Console'] = _CONSOLE
+DESCRIPTOR.services_by_name['ConsoleManager'] = _CONSOLEMANAGER
 
 # @@protoc_insertion_point(module_scope)
