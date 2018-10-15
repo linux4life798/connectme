@@ -33,7 +33,7 @@ make sslcerts
 
 ## Get file checksums
 ```bash
-./connectme.py -v - checksum 'testdir/src/*.txt'
+./connectme.py -v - checksum 'testdir/src*/*.txt'
 ```
 
 # Anti-Features
