@@ -1,13 +1,35 @@
 # ConnectMe
 
-# Exmple usage
+# Features
+* TLS/SSL enabled with mutual authentication
+* Remote file glob evaluation
+
+# Example usage
+
+## Setup certs
+```bash
+make sslcerts
+```
+
+## Launch server
+```bash
+./connectme.py -v -s
+```
+
+## Remote launch command
 ```bash
 ./connectme.py - launch -- ls -al
 ```
 
-# Features
-* TLS/SSL enabled with mutual authentication
-* Remote file glob evaluation
+## Put files
+```bash
+./connectme.py -v - put testdir/src/*.txt testdir/dest
+```
+
+## Get files
+```bash
+./connectme.py -v - get testdir/src/*.txt testdir/dest
+```
 
 # Anti-Features
 * Cannot recursively copy directories and files
