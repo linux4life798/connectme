@@ -39,28 +39,42 @@ service FileManager {
   rpc Get(stream FilePath) returns (stream FileChunk) {}
 }
 
-service Meta {
+service MetaManager {
   rpc Version(VersionRequest) returns (VersionResponse) {}
 }
 
 message LaunchRequest {
-  string command = 1;
-  repeated string arguments = 2;
+  bool            willconnect = 1;
+  string          command = 2;
+  repeated string arguments = 3;
 }
 
 message LaunchResponse {
 }
 
 enum ControlSignal {
-  SIGINT = 0;
+  NOSIG   = 0;
+  EOF     = 1;
+  EXIT    = 2;
+  SIGINT  = 3;
+  SIGKILL = 4;
+}
+
+enum DataStream {
+  NOSTREAM = 0;
+  STDIN    = 1;
+  STDOUT   = 2;
+  STDERR   = 3;
 }
 
 message ConnectData {
-  bytes data = 1;
-  ControlSignal ctrl = 2;
+  bytes         data = 1;
+  DataStream    channel = 2;
+  ControlSignal ctrl = 3;
+  int32         exitcode = 4;
 }
 
-service Console {
+service ConsoleManager {
   rpc Launch(LaunchRequest) returns (LaunchResponse);
   rpc Connect(stream ConnectData) returns (stream ConnectData);
 }
