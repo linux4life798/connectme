@@ -122,9 +122,11 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
                 if input.ctrl == connectme_pb2.EOF:
                     self.proc.stdin.close()
                 elif input.ctrl == connectme_pb2.SIGINT:
-                    self.proc.send_signal(signal.SIGINT)
+                    logging.debug('sending SIGINT')
+                    self.proc.send_signal(int(signal.SIGINT))
                 elif input.ctrl==connectme_pb2.SIGKILL:
-                    self.proc.send_signal(signal.SIGKILL)
+                    logging.debug('sending SIGKILL')
+                    self.proc.send_signal(int(signal.SIGKILL))
         logging.debug('closing io transmitter')
 
     def Connect(self, req_iter: connectme_pb2.ConnectData, contex: grpc.RpcContext):
