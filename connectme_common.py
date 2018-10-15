@@ -1,13 +1,14 @@
-import hashlib
 import glob
-import os
+import hashlib
 import logging
+import os
 from logging import Logger
 
 import grpc
 
 import connectme_pb2
 import connectme_pb2_grpc
+
 
 class ConnectMe:
     VERSION_MAJOR          = 1

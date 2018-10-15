@@ -4,11 +4,11 @@
 
 import logging
 import os
+import select
+import signal
 import sys
-import select
 from queue import Queue
-from threading import Thread, Event
-import select
+from threading import Event, Thread
 
 import grpc
 

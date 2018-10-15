@@ -3,9 +3,9 @@
 # Oct 7, 2018
 
 import argparse
+import logging
 import sys
 import time
-import logging
 
 import grpc
 
