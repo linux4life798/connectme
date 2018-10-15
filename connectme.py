@@ -96,7 +96,8 @@ if __name__ == "__main__":
             try:
                 checksums = client.FileRemoteChecksum(args.file)
             except FileNotFoundError as e:
-                logging.error('File not found: %s' % e)
+                logging.fatal(e)
+                sys.exit(1)
             else:
                 # Output the sum and file in standard checksum format
                 for f,sum in checksums.items():
@@ -107,14 +108,16 @@ if __name__ == "__main__":
             try:
                 client.FilePut(args.local_file, args.remote_destination)
             except FileNotFoundError as e:
-                print('File not found: ', e)
+                logging.fatal(e)
+                sys.exit(1)
         elif args.command == "get":
             logging.debug('remote_file = %s' % args.remote_file)
             logging.debug('local_destination = %s' % args.local_destination)
             try:
                 client.FileGet(args.remote_file, args.local_destination)
             except FileNotFoundError as e:
-                logging.error('File not found: %s' % e)
+                logging.fatal(e)
+                sys.exit(1)
         elif args.command == "version":
             cver = client.ClientVersion()
             print('Client: %s' % client.FormatVersion(cver))

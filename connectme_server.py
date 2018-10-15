@@ -38,7 +38,12 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
     def Checksum(self, request_iterator: connectme_pb2.FilePath, context: grpc.ServicerContext):
         """Fetch the sha256 checksum for the incoming file patterns"""
         for file in request_iterator:
-            for path in self.expandPath(file.path):
+            paths = self.expandPath(file.path)
+            if len(paths) == 0:
+                details = "File \"{}\" does not exist".format(file.path)
+                logging.warn(details)
+                context.abort(grpc.StatusCode.NOT_FOUND, details)
+            for path in paths:
                 sum: str
                 try:
                     logging.debug("expanded paths = {}".format(path))
@@ -70,11 +75,12 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
     def Get(self, request_iterator: connectme_pb2.FilePath, context: grpc.ServicerContext):
         """Fetch the incoming file patterns"""
         for file in request_iterator:
-            paths = self.expandPath(file.path)
             try:
                 # paths are with respect to server side fs
-                g = self.fileChunkGenerator(paths, False)
-                for c in g:
+                paths = self.expandPath(file.path)
+                if len(paths) == 0:
+                    raise FileNotFoundError(file.path)
+                for c in self.fileChunkGenerator(paths, False):
                     yield c
             except FileNotFoundError as e:
                 details = "File not found: \"{}\"".format(e)
