@@ -36,50 +36,57 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
         super(ConnectMeServer, self).__init__(address)
 
     def Checksum(self, request_iterator: connectme_pb2.FilePath, context: grpc.ServicerContext):
-        """
-        """
+        """Fetch the sha256 checksum for the incoming file patterns"""
         for file in request_iterator:
             for path in self.expandPath(file.path):
-                sha256: str
+                sum: str
                 try:
-                    print("expanded paths = ", path)
-                    sha256 = self.sha256file(path)
+                    logging.debug("expanded paths = {}".format(path))
+                    sum = self.sha256file(path)
                 except FileNotFoundError:
-                    print('Failed to find {}'.format(path))
+                    logging.warn('Failed to find {}'.format(path))
                     details = "File \"{}\" does not exist".format(path)
                     context.abort(grpc.StatusCode.NOT_FOUND, details)
-                yield connectme_pb2.FileChecksum(path=path, sum=sha256)
+                except Exception as e:
+                    details = "Unknown error on open or read: \"{}\"".format(e)
+                    context.abort(grpc.StatusCode.UNKNOWN, details)
+                yield connectme_pb2.FileChecksum(path=path, sum=sum)
 
     def Put(self, request_iterator: connectme_pb2.FileChunk, context: grpc.ServicerContext):
+        """Write/create the incoming files"""
         total_files: int = 0
         total_bytes: int = 0
-
-        path: str = "/dev/null"
-        file = open(path, "wb")
-        for chunk in request_iterator:
-            if chunk.counter == 0:
-                file.close()
-                path = chunk.path
-                file = open(path, "wb")
-                total_files += 1
-            file.write(chunk.data)
-            total_bytes += len(chunk.data)
-        file.close()
+        try:
+            # paths are with respect to server side fs
+            (total_files, total_bytes) = self.fileChunkReceiver(request_iterator, False)
+        except IsADirectoryError as e:
+            details = "Tried to write to directory: \"{}\"".format(e)
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, details)
+        except Exception as e:
+            details = "Unknown error on open or write: \"{}\"".format(e)
+            context.abort(grpc.StatusCode.UNKNOWN, details)
         return connectme_pb2.PutReturn(total_files=total_files, total_bytes=total_bytes)
 
     def Get(self, request_iterator: connectme_pb2.FilePath, context: grpc.ServicerContext):
-        """
-        """
+        """Fetch the incoming file patterns"""
         for file in request_iterator:
+            paths = self.expandPath(file.path)
             try:
-                sha256 = self.sha256file(file.path)
-            except FileNotFoundError:
-                print('Failed to find {}'.format(file.path))
-                details = "File \"{}\" does not exist".format(file.path)
+                # paths are with respect to server side fs
+                g = self.fileChunkGenerator(paths, False)
+                for c in g:
+                    yield c
+            except FileNotFoundError as e:
+                details = "File not found: \"{}\"".format(e)
+                logging.warn(details)
                 context.abort(grpc.StatusCode.NOT_FOUND, details)
-            yield connectme_pb2.FileChecksum(path=file.path, sum=sha256)
+            except Exception as e:
+                details = "Unknown error on open or read: \"{}\"".format(e)
+                context.abort(grpc.StatusCode.UNKNOWN, details)
+
 
     def Version(self, req: connectme_pb2.VersionRequest, context: grpc.ServicerContext):
+        """Fetch the server library major/minor version"""
         return connectme_pb2.VersionResponse(major=self.VERSION_MAJOR, minor=self.VERSION_MINOR)
 
     def Launch(self, req: connectme_pb2.LaunchRequest, contex: grpc.RpcContext):
@@ -120,8 +127,6 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
                     self.proc.send_signal(signal.SIGKILL)
         logging.debug('closing io transmitter')
 
-
-
     def Connect(self, req_iter: connectme_pb2.ConnectData, contex: grpc.RpcContext):
         q = Queue(1)
         worker_stdout = Thread(target=self._ioCollector, args=(q, self.proc.stdout, connectme_pb2.STDOUT))
@@ -134,7 +139,6 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
         nonecount = 0
         while True:
             d = q.get()
-            logging.debug('d={}'.format(d))
             if d == None:
                 nonecount += 1
                 if nonecount == 2:

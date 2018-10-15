@@ -61,12 +61,13 @@ class ConnectMeClient(ConnectMe):
         Transfers the files listed in source_paths to the remote directory remote_destination
         This function can throw FileNotFoundError.
         """
+        lastChar = remote_destination[len(remote_destination)-1]
+        if lastChar != '/':
+            remote_destination += '/'
 
         try:
-            lastChar = remote_destination[len(remote_destination)-1]
-            if lastChar != '/':
-                remote_destination += '/'
-            g = self.fileChunkGenerator(source_paths, remote_destination)
+            paths = [p for pat in source_paths for p in self.expandPath(pat)]
+            g = self.fileChunkGenerator(paths, True, remote_destination)
             status = self.filemanager.Put(g)
             print('# Copied {} files'.format(status.total_files))
             print('# Copied {} bytes'.format(status.total_bytes))
@@ -83,10 +84,25 @@ class ConnectMeClient(ConnectMe):
         Transfers the files listed in remote_paths to the local directory local_destination
         This function can throw FileNotFoundError.
         """
-        raise NotImplementedError()
+        lastChar = local_destination[len(local_destination)-1]
+        if lastChar != '/':
+            local_destination += '/'
+
+        try:
+            filegen = (connectme_pb2.FilePath(path=p) for p in remote_paths)
+            chunks = self.filemanager.Get(filegen)
+            self.fileChunkReceiver(chunks, True, local_destination)
+        except grpc.RpcError as e:
+            status_code = e.code()  # status_code.name and status_code.value
+            if grpc.StatusCode.NOT_FOUND == status_code:
+                raise FileNotFoundError(e.details()) from e
+            else:
+                # pass any other gRPC errors to user
+                raise e
 
     def ClientVersion(self):
             return (self.VERSION_MAJOR, self.VERSION_MINOR)
+
     def RemoteVersion(self):
         try:
             ver = self.metamanager.Version(connectme_pb2.VersionRequest())
@@ -121,9 +137,7 @@ class ConnectMeClient(ConnectMe):
             queue.put(connectme_pb2.ConnectData(data=d, channel=connectme_pb2.STDIN))
 
     def Launch(self, cmd: str, args: list = []):
-        """
-        Connect the local terminal to a remote command launch
-        """
+        """Connect the local terminal to a remote command launch"""
         exitcode: int
         q = Queue()
         shutdown = Event()

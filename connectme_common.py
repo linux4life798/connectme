@@ -1,5 +1,7 @@
 import hashlib
 import glob
+import os
+import logging
 from logging import Logger
 
 import grpc
@@ -27,9 +29,11 @@ class ConnectMe:
         self.address: str = address
 
     def expandPath(self, path: str):
+        """Use linux globs to expand a file pattern"""
         return glob.glob(path)
 
     def sha256file(self, path: str):
+        """Generate sha256 for the given file path"""
         sha256 = hashlib.sha256()
         with open(path, 'rb') as f:
             while True:
@@ -39,20 +43,47 @@ class ConnectMe:
                 sha256.update(data)
         return sha256.hexdigest()
 
-    def fileChunkGenerator(self, paths, prefix: str):
-        """
-        Path names are in terms of the remote server path
-        """
+    def fileChunkGenerator(self, paths, strippath: bool, prefix: str=''):
+        """Path names are in terms of the remote server path"""
         for path in paths:
             counter: int = 0
             with open(path, 'rb') as f:
+                dstpath: str
+                if strippath:
+                    dstpath = prefix+os.path.basename(path)
+                else:
+                    dstpath = prefix+path
                 # Read chunks and send
+                logging.debug('Generating chunks for %s -> %s' % (path,dstpath))
                 while True:
                     data = f.read(self.local_block_size)
                     if not data:
                         break
-                    yield connectme_pb2.FileChunk(path=prefix+path, counter=counter, data=data)
+                    yield connectme_pb2.FileChunk(path=dstpath, counter=counter, data=data)
                     counter += 1
+
+    def fileChunkReceiver(self, chunk_iter, strippath: bool, prefix: str=''):
+        total_files: int = 0
+        total_bytes: int = 0
+        path: str = "/dev/null"
+        file = open(path, "wb")
+        for chunk in chunk_iter:
+            if chunk.counter == 0:
+                file.close()
+                dstpath: str
+                if strippath:
+                    dstpath = prefix+os.path.basename(chunk.path)
+                else:
+                    dstpath = prefix+chunk.path
+                logging.debug('Receiving chunks for %s -> %s' % (chunk.path,dstpath))
+                file = open(dstpath, "wb")
+                total_files += 1
+            file.write(chunk.data)
+            total_bytes += len(chunk.data)
+        file.close()
+        return (total_files, total_bytes)
+
     def FormatVersion(self, ver: tuple):
+        """Return the human readable string composed of the major and minor version"""
         (major,minor) = ver
         return '{}.{}'.format(major, minor)
