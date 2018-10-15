@@ -3,9 +3,14 @@
 # Oct 7, 2018
 
 import concurrent.futures as futures
-import os
-import time
 import glob
+import logging
+import os
+import signal
+import subprocess
+import time
+from queue import Queue
+from threading import Thread
 
 import grpc
 
@@ -74,9 +79,79 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, details)
             yield connectme_pb2.FileChecksum(path=file.path, sum=sha256)
 
+    def Version(self, req: connectme_pb2.VersionRequest, context: grpc.ServicerContext):
+        return connectme_pb2.VersionResponse(major=self.VERSION_MAJOR, minor=self.VERSION_MINOR)
+
+    def Launch(self, req: connectme_pb2.LaunchRequest, contex: grpc.RpcContext):
+        logging.debug('Launch cmd={} args={}'.format(req.command, req.arguments))
+        args = [ req.command ]
+        for a in req.arguments:
+            args.append(a)
+        if req.willconnect:
+            self.proc = subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+            self.proc = subprocess.Popen(args)
+        return connectme_pb2.LaunchResponse()
+
+    def _ioCollector(self, queue: Queue, reader, chtype: connectme_pb2.DataStream):
+        while True:
+            d = bytes(reader.readline(self.local_block_size))
+            if len(d) == 0:
+                queue.put(connectme_pb2.ConnectData(channel=chtype, ctrl=connectme_pb2.EOF))
+                queue.put(None)
+                logging.info('closing {}'.format(str(chtype)))
+                return
+            queue.put(connectme_pb2.ConnectData(data=d, channel=chtype, ctrl=connectme_pb2.NOSIG))
+
+    def _ioTransmitter(self, req_iter):
+        for input in req_iter:
+            input: connectme_pb2.ConnectData
+            assert input.channel in [connectme_pb2.NOSTREAM, connectme_pb2.STDIN]
+            # write out bytes to stdin
+            self.proc.stdin.write(input.data)
+            self.proc.stdin.flush()
+            # send ctrl signals
+            if input.ctrl != connectme_pb2.NOSIG:
+                if input.ctrl == connectme_pb2.EOF:
+                    self.proc.stdin.close()
+                elif input.ctrl == connectme_pb2.SIGINT:
+                    self.proc.send_signal(signal.SIGINT)
+                elif input.ctrl==connectme_pb2.SIGKILL:
+                    self.proc.send_signal(signal.SIGKILL)
+        logging.debug('closing io transmitter')
+
+
+
+    def Connect(self, req_iter: connectme_pb2.ConnectData, contex: grpc.RpcContext):
+        q = Queue(1)
+        worker_stdout = Thread(target=self._ioCollector, args=(q, self.proc.stdout, connectme_pb2.STDOUT))
+        worker_stdout.start()
+        worker_stderr = Thread(target=self._ioCollector, args=(q, self.proc.stderr, connectme_pb2.STDERR))
+        worker_stderr.start()
+        worker_stdin = Thread(target=self._ioTransmitter, args=(req_iter,))
+        worker_stdin.start()
+        # run loop for outgoing data
+        nonecount = 0
+        while True:
+            d = q.get()
+            logging.debug('d={}'.format(d))
+            if d == None:
+                nonecount += 1
+                if nonecount == 2:
+                    logging.debug('Waiting for proc')
+                    exitcode = self.proc.wait()
+                    logging.debug('exitcode = {}'.format(exitcode))
+                    yield connectme_pb2.ConnectData(channel=connectme_pb2.NOSTREAM, ctrl=connectme_pb2.EXIT, exitcode=exitcode)
+                    logging.info('Connect closed')
+                    return
+            else:
+                yield d
+
     def _setup(self):
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         connectme_pb2_grpc.add_FileManagerServicer_to_server(self, self.server)
+        connectme_pb2_grpc.add_MetaManagerServicer_to_server(self, self.server)
+        connectme_pb2_grpc.add_ConsoleManagerServicer_to_server(self, self.server)
 
     def Start(self):
         self._setup()

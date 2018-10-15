@@ -1,5 +1,6 @@
 import hashlib
 import glob
+from logging import Logger
 
 import grpc
 
@@ -7,7 +8,8 @@ import connectme_pb2
 import connectme_pb2_grpc
 
 class ConnectMe:
-    VERSION                = "1.0"
+    VERSION_MAJOR          = 1
+    VERSION_MINOR          = 0
 
     DEFAULT_SERVER_ADDRESS = "[::]:50051"
     DEFAULT_CLIENT_ADDRESS = "localhost:50051"
@@ -18,10 +20,11 @@ class ConnectMe:
     DEFAULT_CLIENT_KEY_FILE = 'cert/client.key'
     DEFAULT_CLIENT_CHAIN_FILE = 'cert/client.crt'
 
-    def __init__(self, address):
+    def __init__(self, address: str):
         # We should ask the local FS what the block size is
         self.local_block_size = 65536
-        self.address = address
+        # self.local_block_size = 1
+        self.address: str = address
 
     def expandPath(self, path: str):
         return glob.glob(path)
@@ -50,3 +53,6 @@ class ConnectMe:
                         break
                     yield connectme_pb2.FileChunk(path=prefix+path, counter=counter, data=data)
                     counter += 1
+    def FormatVersion(self, ver: tuple):
+        (major,minor) = ver
+        return '{}.{}'.format(major, minor)

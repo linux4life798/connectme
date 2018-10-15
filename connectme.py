@@ -5,6 +5,7 @@
 import argparse
 import sys
 import time
+import logging
 
 import grpc
 
@@ -29,6 +30,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("address", help="the server address to bind or connect to", nargs="?", default="-")
     parser.add_argument("-s", "--server", help="indicate this is the server", action="store_true")
+    parser.add_argument("-v", "--verbose", help="indicate if we should print more verbosely", action="store_true")
     parser.add_argument("-i", "--insecure", help="indicate if the connection should not use TLS/SSL", action="store_true")
     subparsers = parser.add_subparsers(dest='command')
 
@@ -43,10 +45,16 @@ if __name__ == "__main__":
     parser_get.add_argument('remote_file', nargs="+", type=str, help='The path of the remote files')
     parser_get.add_argument('local_destination', type=str, help='The local directory to deposit the files')
 
+    parser_version = subparsers.add_parser('version', help='Get version of client and remote server')
+
     parser_launch = subparsers.add_parser('launch', help='Launch a command on remote host')
     parser_launch.add_argument('cmd', type=str, help='The command path')
     parser_launch.add_argument('args', nargs="*", type=str, help='The command arguments')
     args = parser.parse_args()
+
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+
 
     if args.server:
         server: ConnectMeServer
@@ -107,10 +115,17 @@ if __name__ == "__main__":
                 client.FileGet(args.remote_file, args.local_destination)
             except FileNotFoundError as e:
                 print('File not found: ', e)
+        elif args.command == "version":
+            cver = client.ClientVersion()
+            print('Client: ', client.FormatVersion(cver))
+            rver = client.RemoteVersion()
+            print('Remote: ', client.FormatVersion(rver))
+            # To be compatible majors must match AND server must have at least client minor version
+            if cver[0]!=rver[0] or cver[1]>rver[1]:
+                print('Client may be incompatible with remote server')
+
         elif args.command == "launch":
             print('cmd = ', args.cmd, file=sys.stderr)
             print('args = ', args.args, file=sys.stderr)
-            # try:
-            #     checksum = client.FileGet(args.remote_file, args.local_destination)
-            # except FileNotFoundError as e:
-            #     print('File not found: ', e)
+            exitcode = client.Launch(args.cmd, args.args)
+            sys.exit(exitcode)
