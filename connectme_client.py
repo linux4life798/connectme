@@ -144,7 +144,11 @@ class ConnectMeClient(ConnectMe):
         worker_stdin = Thread(target=self._ioCollector, args=(shutdown, q))
         worker_stdin.start()
 
+        def sighandler(signum, stack):
+            q.put(connectme_pb2.ConnectData(channel=connectme_pb2.NOSTREAM, ctrl=connectme_pb2.SIGINT))
+
         self.consolemanager.Launch(connectme_pb2.LaunchRequest(willconnect=True, command=cmd, arguments=args))
+        signal.signal(signal.SIGINT, sighandler)
         for out in self.consolemanager.Connect(iter(q.get, None)):
             assert out.channel in [connectme_pb2.NOSTREAM, connectme_pb2.STDOUT, connectme_pb2.STDERR]
             if out.ctrl == connectme_pb2.EXIT:
