@@ -28,7 +28,12 @@ make sslcerts
 
 ## Get files
 ```bash
-./connectme.py -v - get testdir/src/*.txt testdir/dest
+./connectme.py -v - get 'testdir/src/*.txt' testdir/dest
+```
+
+## Get file checksums
+```bash
+./connectme.py -v - checksum 'testdir/src/*.txt'
 ```
 
 # Anti-Features
