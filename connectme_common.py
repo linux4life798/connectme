@@ -84,6 +84,25 @@ class ConnectMe:
         file.close()
         return (total_files, total_bytes)
 
+    def fileChunkChecksummer(self, chunk_iter):
+        """
+        Calculate checksums for files given as chunks
+        Returns as FileChecksum object
+        """
+        firstfile = True
+        sha256: hashlib.sha256 = hashlib.sha256()
+        for chunk in chunk_iter:
+            if chunk.counter == 0:
+                if firstfile:
+                    firstfile = False
+                else:
+                    yield connectme_pb2.FileChecksum(path=chunk.path, sum=sha256.hexdigest())
+                logging.debug('Receiving chunks for %s' % chunk.path)
+                sha256 = hashlib.sha256()
+            sha256.update(chunk.data)
+        # write out last file checksum
+        yield connectme_pb2.FileChecksum(path=chunk.path, sum=sha256.hexdigest())
+
     def FormatVersion(self, ver: tuple):
         """Return the human readable string composed of the major and minor version"""
         (major,minor) = ver

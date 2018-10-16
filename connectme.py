@@ -37,6 +37,9 @@ if __name__ == "__main__":
     parser_checksum = subparsers.add_parser('checksum', help='Request the checksum of remote files')
     parser_checksum.add_argument('file', nargs="+", type=str, help='A file path we wish to checksum')
 
+    parser_checksum = subparsers.add_parser('schecksum', help='Send files to be remotely checksummed')
+    parser_checksum.add_argument('file', nargs="+", type=str, help='The path of files to sent for checksumming')
+
     parser_put = subparsers.add_parser('put', help='Transfer local files to remote server')
     parser_put.add_argument('local_file', nargs="+",type=str, help='The path of files to send')
     parser_put.add_argument('remote_destination', type=str, help='The remote path where we will deposit the files')
@@ -53,7 +56,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     FORMAT = '%(asctime)-15s %(message)s'
-
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format=FORMAT)
     else:
@@ -99,6 +101,17 @@ if __name__ == "__main__":
             logging.debug('files = %s' % args.file)
             try:
                 checksums = client.FileRemoteChecksum(args.file)
+            except FileNotFoundError as e:
+                logging.fatal(e)
+                sys.exit(1)
+            else:
+                # Output the sum and file in standard checksum format
+                for f,sum in checksums.items():
+                    print(sum, f)
+        elif args.command == "schecksum":
+            logging.debug('files = %s' % args.file)
+            try:
+                checksums = client.FileSendRemoteChecksum(args.file)
             except FileNotFoundError as e:
                 logging.fatal(e)
                 sys.exit(1)

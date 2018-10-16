@@ -63,6 +63,23 @@ class ConnectMeClient(ConnectMe):
                 # pass any other gRPC errors to user
                 raise e
 
+    def FileSendRemoteChecksum(self, source_paths: list):
+        """
+        Sends files to be remotely checksummed.
+        This function can throw FileNotFoundError.
+        """
+        try:
+            paths = [p for pat in source_paths for p in self.expandPath(pat)]
+            g = self.fileChunkGenerator(paths, False)
+            return {c.path: c.sum for c in self.filemanager.SendChecksum(g)}
+        except grpc.RpcError as e:
+            status_code = e.code()  # status_code.name and status_code.value
+            if grpc.StatusCode.NOT_FOUND == status_code:
+                raise FileNotFoundError(e.details()) from e
+            else:
+                # pass any other gRPC errors to user
+                raise e
+
     def FilePut(self, source_paths: list, remote_destination: str):
         """
         Transfers the files listed in source_paths to the remote directory remote_destination

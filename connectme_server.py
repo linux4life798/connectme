@@ -58,6 +58,12 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
                     context.abort(grpc.StatusCode.UNKNOWN, details)
                 yield connectme_pb2.FileChecksum(path=path, sum=sum)
 
+    def SendChecksum(self, request_iterator: connectme_pb2.FileChunk, context: grpc.ServicerContext):
+        """Return the sha256 checksums for the incoming file chunks"""
+        # paths are with respect to server side fs
+        for sum in self.fileChunkChecksummer(request_iterator):
+            yield sum
+
     def Put(self, request_iterator: connectme_pb2.FileChunk, context: grpc.ServicerContext):
         """Write/create the incoming files"""
         total_files: int = 0
