@@ -34,9 +34,9 @@ message VersionResponse {
 }
 
 service FileManager {
-  rpc Checksum(stream FilePath) returns (stream FileChecksum) {}
-  rpc Put(stream FileChunk) returns (PutReturn) {}
-  rpc Get(stream FilePath) returns (stream FileChunk) {}
+  rpc Checksum(stream FilePath) returns (stream FileChecksum);
+  rpc Put(stream FileChunk) returns (PutReturn);
+  rpc Get(stream FilePath) returns (stream FileChunk);
   // This is an odd rpc call that allows sendinf file chunks to be remotley checksummed
   rpc SendChecksum(stream FileChunk) returns (stream FileChecksum);
 }
