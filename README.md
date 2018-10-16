@@ -3,6 +3,7 @@
 # Features
 * TLS/SSL enabled with mutual authentication
 * Remote file glob evaluation
+* If connection drops during connect session, process will be killed
 
 # Example usage
 
@@ -39,6 +40,8 @@ make sslcerts
 # Anti-Features
 * Cannot recursively copy directories and files
 * Ony uses SHA256
+* Can only handle one launch/connect at a time.
+  Process races will occur if more than one are attempted.
 
 # Prerequisites
 
