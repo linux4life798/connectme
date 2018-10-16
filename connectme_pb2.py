@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='connectme',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0f\x63onnectme.proto\x12\tconnectme\"\x18\n\x08\x46ilePath\x12\x0c\n\x04path\x18\x01 \x01(\t\")\n\x0c\x46ileChecksum\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0b\n\x03sum\x18\x02 \x01(\t\"8\n\tFileChunk\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0f\n\x07\x63ounter\x18\x02 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"5\n\tPutReturn\x12\x13\n\x0btotal_files\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\"\x10\n\x0eVersionRequest\"/\n\x0fVersionResponse\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r\"H\n\rLaunchRequest\x12\x13\n\x0bwillconnect\x18\x01 \x01(\x08\x12\x0f\n\x07\x63ommand\x18\x02 \x01(\t\x12\x11\n\targuments\x18\x03 \x03(\t\"\x10\n\x0eLaunchResponse\"}\n\x0b\x43onnectData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12&\n\x07\x63hannel\x18\x02 \x01(\x0e\x32\x15.connectme.DataStream\x12&\n\x04\x63trl\x18\x03 \x01(\x0e\x32\x18.connectme.ControlSignal\x12\x10\n\x08\x65xitcode\x18\x04 \x01(\x05*F\n\rControlSignal\x12\t\n\x05NOSIG\x10\x00\x12\x07\n\x03\x45OF\x10\x01\x12\x08\n\x04\x45XIT\x10\x02\x12\n\n\x06SIGINT\x10\x03\x12\x0b\n\x07SIGKILL\x10\x04*=\n\nDataStream\x12\x0c\n\x08NOSTREAM\x10\x00\x12\t\n\x05STDIN\x10\x01\x12\n\n\x06STDOUT\x10\x02\x12\n\n\x06STDERR\x10\x03\x32\xbc\x01\n\x0b\x46ileManager\x12>\n\x08\x43hecksum\x12\x13.connectme.FilePath\x1a\x17.connectme.FileChecksum\"\x00(\x01\x30\x01\x12\x35\n\x03Put\x12\x14.connectme.FileChunk\x1a\x14.connectme.PutReturn\"\x00(\x01\x12\x36\n\x03Get\x12\x13.connectme.FilePath\x1a\x14.connectme.FileChunk\"\x00(\x01\x30\x01\x32Q\n\x0bMetaManager\x12\x42\n\x07Version\x12\x19.connectme.VersionRequest\x1a\x1a.connectme.VersionResponse\"\x00\x32\x8e\x01\n\x0e\x43onsoleManager\x12=\n\x06Launch\x12\x18.connectme.LaunchRequest\x1a\x19.connectme.LaunchResponse\x12=\n\x07\x43onnect\x12\x16.connectme.ConnectData\x1a\x16.connectme.ConnectData(\x01\x30\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0f\x63onnectme.proto\x12\tconnectme\"\x18\n\x08\x46ilePath\x12\x0c\n\x04path\x18\x01 \x01(\t\")\n\x0c\x46ileChecksum\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0b\n\x03sum\x18\x02 \x01(\t\"8\n\tFileChunk\x12\x0c\n\x04path\x18\x01 \x01(\t\x12\x0f\n\x07\x63ounter\x18\x02 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\"5\n\tPutReturn\x12\x13\n\x0btotal_files\x18\x01 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x02 \x01(\x04\"\x10\n\x0eVersionRequest\"/\n\x0fVersionResponse\x12\r\n\x05major\x18\x01 \x01(\r\x12\r\n\x05minor\x18\x02 \x01(\r\"H\n\rLaunchRequest\x12\x13\n\x0bwillconnect\x18\x01 \x01(\x08\x12\x0f\n\x07\x63ommand\x18\x02 \x01(\t\x12\x11\n\targuments\x18\x03 \x03(\t\"\x10\n\x0eLaunchResponse\"}\n\x0b\x43onnectData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12&\n\x07\x63hannel\x18\x02 \x01(\x0e\x32\x15.connectme.DataStream\x12&\n\x04\x63trl\x18\x03 \x01(\x0e\x32\x18.connectme.ControlSignal\x12\x10\n\x08\x65xitcode\x18\x04 \x01(\x05*F\n\rControlSignal\x12\t\n\x05NOSIG\x10\x00\x12\x07\n\x03\x45OF\x10\x01\x12\x08\n\x04\x45XIT\x10\x02\x12\n\n\x06SIGINT\x10\x03\x12\x0b\n\x07SIGKILL\x10\x04*=\n\nDataStream\x12\x0c\n\x08NOSTREAM\x10\x00\x12\t\n\x05STDIN\x10\x01\x12\n\n\x06STDOUT\x10\x02\x12\n\n\x06STDERR\x10\x03\x32\xf9\x01\n\x0b\x46ileManager\x12<\n\x08\x43hecksum\x12\x13.connectme.FilePath\x1a\x17.connectme.FileChecksum(\x01\x30\x01\x12\x33\n\x03Put\x12\x14.connectme.FileChunk\x1a\x14.connectme.PutReturn(\x01\x12\x34\n\x03Get\x12\x13.connectme.FilePath\x1a\x14.connectme.FileChunk(\x01\x30\x01\x12\x41\n\x0cSendChecksum\x12\x14.connectme.FileChunk\x1a\x17.connectme.FileChecksum(\x01\x30\x01\x32Q\n\x0bMetaManager\x12\x42\n\x07Version\x12\x19.connectme.VersionRequest\x1a\x1a.connectme.VersionResponse\"\x00\x32\x8e\x01\n\x0e\x43onsoleManager\x12=\n\x06Launch\x12\x18.connectme.LaunchRequest\x1a\x19.connectme.LaunchResponse\x12=\n\x07\x43onnect\x12\x16.connectme.ConnectData\x1a\x16.connectme.ConnectData(\x01\x30\x01\x62\x06proto3')
 )
 
 _CONTROLSIGNAL = _descriptor.EnumDescriptor(
@@ -522,7 +522,7 @@ _FILEMANAGER = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   serialized_start=634,
-  serialized_end=822,
+  serialized_end=883,
   methods=[
   _descriptor.MethodDescriptor(
     name='Checksum',
@@ -551,6 +551,15 @@ _FILEMANAGER = _descriptor.ServiceDescriptor(
     output_type=_FILECHUNK,
     serialized_options=None,
   ),
+  _descriptor.MethodDescriptor(
+    name='SendChecksum',
+    full_name='connectme.FileManager.SendChecksum',
+    index=3,
+    containing_service=None,
+    input_type=_FILECHUNK,
+    output_type=_FILECHECKSUM,
+    serialized_options=None,
+  ),
 ])
 _sym_db.RegisterServiceDescriptor(_FILEMANAGER)
 
@@ -563,8 +572,8 @@ _METAMANAGER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
-  serialized_start=824,
-  serialized_end=905,
+  serialized_start=885,
+  serialized_end=966,
   methods=[
   _descriptor.MethodDescriptor(
     name='Version',
@@ -587,8 +596,8 @@ _CONSOLEMANAGER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=2,
   serialized_options=None,
-  serialized_start=908,
-  serialized_end=1050,
+  serialized_start=969,
+  serialized_end=1111,
   methods=[
   _descriptor.MethodDescriptor(
     name='Launch',

@@ -29,6 +29,11 @@ class FileManagerStub(object):
         request_serializer=connectme__pb2.FilePath.SerializeToString,
         response_deserializer=connectme__pb2.FileChunk.FromString,
         )
+    self.SendChecksum = channel.stream_stream(
+        '/connectme.FileManager/SendChecksum',
+        request_serializer=connectme__pb2.FileChunk.SerializeToString,
+        response_deserializer=connectme__pb2.FileChecksum.FromString,
+        )
 
 
 class FileManagerServicer(object):
@@ -56,6 +61,13 @@ class FileManagerServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def SendChecksum(self, request_iterator, context):
+    """This is an odd rpc call that allows sendinf file chunks to be remotley checksummed
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_FileManagerServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -73,6 +85,11 @@ def add_FileManagerServicer_to_server(servicer, server):
           servicer.Get,
           request_deserializer=connectme__pb2.FilePath.FromString,
           response_serializer=connectme__pb2.FileChunk.SerializeToString,
+      ),
+      'SendChecksum': grpc.stream_stream_rpc_method_handler(
+          servicer.SendChecksum,
+          request_deserializer=connectme__pb2.FileChunk.FromString,
+          response_serializer=connectme__pb2.FileChecksum.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
