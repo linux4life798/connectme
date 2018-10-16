@@ -129,44 +129,70 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
             queue.put(connectme_pb2.ConnectData(data=d, channel=chtype, ctrl=connectme_pb2.NOSIG))
 
     def _ioTransmitter(self, req_iter):
-        for input in req_iter:
-            input: connectme_pb2.ConnectData
-            assert input.channel in [connectme_pb2.NOSTREAM, connectme_pb2.STDIN]
-            # write out bytes to stdin
-            self.proc.stdin.write(input.data)
-            self.proc.stdin.flush()
-            # send ctrl signals
-            if input.ctrl != connectme_pb2.NOSIG:
-                if input.ctrl == connectme_pb2.EOF:
-                    self.proc.stdin.close()
-                elif input.ctrl == connectme_pb2.SIGINT:
-                    logging.debug('sending SIGINT')
-                    self.proc.send_signal(int(signal.SIGINT))
-                elif input.ctrl==connectme_pb2.SIGKILL:
-                    logging.debug('sending SIGKILL')
-                    self.proc.send_signal(int(signal.SIGKILL))
-        logging.debug('closing io transmitter')
+        """Manage emitting stdin and signals to launched process"""
+        logging.info('Startup process stdin and ctrl transmitter')
+        try:
+            for input in req_iter:
+                input: connectme_pb2.ConnectData
+                assert input.channel in [connectme_pb2.NOSTREAM, connectme_pb2.STDIN]
+                # write out bytes to stdin
+                self.proc.stdin.write(input.data)
+                self.proc.stdin.flush()
+                # send ctrl signals
+                if input.ctrl != connectme_pb2.NOSIG:
+                    if input.ctrl == connectme_pb2.EOF:
+                        self.proc.stdin.close()
+                    elif input.ctrl == connectme_pb2.SIGINT:
+                        logging.debug('Ctrl: Sending SIGINT')
+                        self.proc.send_signal(int(signal.SIGINT))
+                    elif input.ctrl==connectme_pb2.SIGKILL:
+                        logging.debug('Ctrl: Sending SIGKILL')
+                        self.proc.send_signal(int(signal.SIGKILL))
+        except grpc.RpcError:
+            logging.warn('Error reading inbound stream - connection failed')
+        logging.debug('Closing io transmitter')
+
+    def _procWaiter(self, queue: Queue):
+        logging.debug('Waiting for proc')
+        exitcode = self.proc.wait()
+        logging.debug("Process exited with %d" % exitcode)
+        queue.put(connectme_pb2.ConnectData(channel=connectme_pb2.NOSTREAM, ctrl=connectme_pb2.EXIT, exitcode=exitcode))
+        queue.put(None)
 
     def Connect(self, req_iter: connectme_pb2.ConnectData, contex: grpc.RpcContext):
-        q = Queue(1)
+        logging.info('Connect')
+        closedproperly: bool = False
+
+        q = Queue(3)
+        # Listens for stdout and pushes it to q
         worker_stdout = Thread(target=self._ioCollector, args=(q, self.proc.stdout, connectme_pb2.STDOUT))
         worker_stdout.start()
+        # Listens for stderr and pushes it to q
         worker_stderr = Thread(target=self._ioCollector, args=(q, self.proc.stderr, connectme_pb2.STDERR))
         worker_stderr.start()
+        # Consumes the inbound data from req_iter and emits to process
         worker_stdin = Thread(target=self._ioTransmitter, args=(req_iter,))
         worker_stdin.start()
-        # run loop for outgoing data
+        # Waits for the process to exit and sends exitcode
+        worker_exitcode = Thread(target=self._procWaiter, args=(q,))
+        worker_exitcode.start()
+
+        def req_closed_callback():
+            if not closedproperly:
+                logging.warn('Killing process')
+                self.proc.kill()
+        contex.add_callback(req_closed_callback)
+
+        # run loop for outgoing data - queue q is used for stdout, stderr, and exitcode
+        # receives None from q, when stdout or stderr is closed
         nonecount = 0
         while True:
             d = q.get()
             if d == None:
                 nonecount += 1
-                if nonecount == 2:
-                    logging.debug('Waiting for proc')
-                    exitcode = self.proc.wait()
-                    logging.debug('exitcode = {}'.format(exitcode))
-                    yield connectme_pb2.ConnectData(channel=connectme_pb2.NOSTREAM, ctrl=connectme_pb2.EXIT, exitcode=exitcode)
+                if nonecount == 3:
                     logging.info('Connect closed')
+                    closedproperly = True
                     return
             else:
                 yield d
