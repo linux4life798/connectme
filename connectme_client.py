@@ -27,9 +27,16 @@ class ConnectMeClient(ConnectMe):
         self.consolemanager = connectme_pb2_grpc.ConsoleManagerStub(self.channel)
 
     def Connect(self):
+        """Connect to server without SSL or authentication"""
         self.channel = grpc.insecure_channel(self.address)
         self._setup()
     def ConnectSSL(self):
+        """
+        Connect to server using authenticated SSL.
+        In the current configuration of ConnectMe, SSL verification is done on
+        the server and client using the same CA cert. This means that both
+        must be signed by the same CA cert for auth to succeed.
+        """
         with open(self.DEFAULT_CLIENT_KEY_FILE, 'rb') as f:
             private_key = f.read()
         with open(self.DEFAULT_CLIENT_CHAIN_FILE, 'rb') as f:
@@ -101,9 +108,11 @@ class ConnectMeClient(ConnectMe):
                 raise e
 
     def ClientVersion(self):
-            return (self.VERSION_MAJOR, self.VERSION_MINOR)
+        """Fetch this client library's version"""
+        return (self.VERSION_MAJOR, self.VERSION_MINOR)
 
     def RemoteVersion(self):
+        """Fetch remote server version"""
         try:
             ver = self.metamanager.Version(connectme_pb2.VersionRequest())
             return (ver.major, ver.minor)
@@ -158,15 +167,21 @@ class ConnectMeClient(ConnectMe):
                 exitcode = out.exitcode
             if out.channel == connectme_pb2.STDOUT:
                 if out.ctrl == connectme_pb2.EOF:
-                    logging.debug('Closing stdout')
+                    logging.debug('Stdout closed')
                     sys.stdout.flush()
+                    # We don't really need to close stdout, since program
+                    # termination will close the FDs.
+                    # This has a slight deviation in behavior for certain applications.
                     # sys.stdout.close()
                 else:
                     os.write(sys.stdout.fileno(), out.data)
             elif out.channel == connectme_pb2.STDERR:
                 if out.ctrl == connectme_pb2.EOF:
-                    logging.debug('Closing stderr')
+                    logging.debug('Stderr closed')
                     sys.stderr.flush()
+                    # We don't really need to close stdout, since program
+                    # termination will close the FDs.
+                    # This has a slight deviation in behavior for certain applications.
                     # sys.stderr.close()
                 else:
                     os.write(sys.stderr.fileno(), out.data)

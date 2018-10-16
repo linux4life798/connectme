@@ -49,11 +49,12 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
                     logging.debug("expanded paths = {}".format(path))
                     sum = self.sha256file(path)
                 except FileNotFoundError:
-                    logging.warn('Failed to find {}'.format(path))
                     details = "File \"{}\" does not exist".format(path)
+                    logging.warn(details)
                     context.abort(grpc.StatusCode.NOT_FOUND, details)
                 except Exception as e:
                     details = "Unknown error on open or read: \"{}\"".format(e)
+                    logging.warn(details)
                     context.abort(grpc.StatusCode.UNKNOWN, details)
                 yield connectme_pb2.FileChecksum(path=path, sum=sum)
 
@@ -66,9 +67,11 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
             (total_files, total_bytes) = self.fileChunkReceiver(request_iterator, False)
         except IsADirectoryError as e:
             details = "Tried to write to directory: \"{}\"".format(e)
+            logging.warn(details)
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, details)
         except Exception as e:
             details = "Unknown error on open or write: \"{}\"".format(e)
+            logging.warn(details)
             context.abort(grpc.StatusCode.UNKNOWN, details)
         return connectme_pb2.PutReturn(total_files=total_files, total_bytes=total_bytes)
 
@@ -88,6 +91,7 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, details)
             except Exception as e:
                 details = "Unknown error on open or read: \"{}\"".format(e)
+                logging.warn(details)
                 context.abort(grpc.StatusCode.UNKNOWN, details)
 
 
@@ -107,12 +111,20 @@ class ConnectMeServer(ConnectMe, connectme_pb2_grpc.FileManagerServicer):
         return connectme_pb2.LaunchResponse()
 
     def _ioCollector(self, queue: Queue, reader, chtype: connectme_pb2.DataStream):
+        chname: str
+        if chtype == connectme_pb2.STDOUT:
+            chname = 'stdout'
+        else:
+            chname = 'stderr'
+        logging.info('Startup process %s collector' % chname)
+
         while True:
             d = bytes(reader.readline(self.local_block_size))
             if len(d) == 0:
+                logging.info('Shutdown process %s collector - Start' % chname)
                 queue.put(connectme_pb2.ConnectData(channel=chtype, ctrl=connectme_pb2.EOF))
                 queue.put(None)
-                logging.info('closing {}'.format(str(chtype)))
+                logging.info('Shutdown process %s collector - Complete' % chname)
                 return
             queue.put(connectme_pb2.ConnectData(data=d, channel=chtype, ctrl=connectme_pb2.NOSIG))
 
