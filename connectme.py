@@ -52,8 +52,12 @@ if __name__ == "__main__":
     parser_launch.add_argument('args', nargs="*", type=str, help='The command arguments')
     args = parser.parse_args()
 
+    FORMAT = '%(asctime)-15s %(message)s'
+
     if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+    else:
+        logging.basicConfig(level=logging.WARN, format=FORMAT)
 
 
     if args.server:
